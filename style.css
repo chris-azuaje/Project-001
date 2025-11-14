@@ -86,8 +86,37 @@ h1 {
 
 /* Add styles to the form container */
 .form-container {
-  max-width: 300px;
-  padding: 10px;
+  /* max-width: 360px; */
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-container div {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.form-container label {
+  flex: 0 0 140px;
+  font-weight: 600;
+  text-align: right;
+}
+
+.form-container input,
+.form-container select {
+  flex: 1;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #d6d6d6;
+  background-color: #faf9f6;
+  color: #121212;
+}
+
+.form-container select option {
+  color: #121212;
 }
 
 /* When the inputs get focus, do something */
