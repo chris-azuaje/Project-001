@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Project 001</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="script.js"></script>
+  </head>
+  <body>
+    <header>
+      <h1>Project 0</h1>
+    </header>
+
+    <main>
+      <div class="expense_container">
+        <p>04/14/1997</p>
+        <p>$100</p>
+        <p>Description: Shoes from Target</p>
+        <p>Category: Clothes</p>
+        <p>ID: 123456789</p>
+      </div>
+    </main>
+
+    <!-- Form Start -->
+    <div class="form-popup" id="myForm">
+      <form action="" method="get" class="form form-container">
+        <div>
+          <label for="date">Purchase date: </label>
+          <input type="date" name="date" id="date" />
+        </div>
+        <div>
+          <label for="cost">Purchase amount: </label>
+          <input type="number" name="cost" id="cost" placeholder="100" />
+        </div>
+        <div>
+          <label for="description">Description: </label>
+          <input
+            type="text"
+            name="description"
+            id="description"
+            placeholder="Starbucks coffee"
+          />
+        </div>
+        <div>
+          <label for="category">Category: </label>
+          <select name="category" id="category">
+            <option value="">--Choose an option--</option>
+            <option value="dining">Dining</option>
+            <option value="transportation">Transportation</option>
+            <option value="rent">Rent</option>
+          </select>
+        </div>
+        <button type="submit" class="btn">Submit</button>
+        <button type="button" class="btn cancel" onclick="closeForm()">
+          Close
+        </button>
+      </form>
+    </div>
+    <!-- Form End -->
+
+    <div class="btns_div" id="bottom">
+      <button class="btn add">Add</button>
+      <button class="btn remove">Remove</button>
+      <button class="btn open-button" onclick="openForm()">Open Form</button>
+    </div>
+  </body>
+</html>
