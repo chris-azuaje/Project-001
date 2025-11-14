@@ -61,9 +61,24 @@ if (!window.__boxHandlersAttached) {
   });
 }
 
+function toggleOverlay(isVisible) {
+  const overlay = document.getElementById("pageOverlay");
+  if (!overlay) return;
+  overlay.classList.toggle("active", isVisible);
+  overlay.setAttribute("aria-hidden", String(!isVisible));
+}
+
 function openForm() {
   document.getElementById("myForm").style.display = "block";
+  const form = document.getElementById("myForm");
+  if (!form) return;
+  form.style.display = "block";
+  toggleOverlay(true);
 }
 function closeForm() {
   document.getElementById("myForm").style.display = "none";
+  const form = document.getElementById("myForm");
+  if (!form) return;
+  form.style.display = "none";
+  toggleOverlay(false);
 }

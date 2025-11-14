@@ -15,6 +15,21 @@ body {
   padding: 50px;
 }
 
+.page-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease-in-out;
+  z-index: 8;
+}
+
+.page-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 h1 {
   text-align: center;
 }
@@ -86,7 +101,6 @@ h1 {
 
 /* Add styles to the form container */
 .form-container {
-  /* max-width: 360px; */
   padding: 20px;
   display: flex;
   flex-direction: column;
