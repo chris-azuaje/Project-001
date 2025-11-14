@@ -15,49 +15,201 @@ if (!window.__boxHandlersAttached) {
     const addBtn = document.querySelector(".add");
     const removeBtn = document.querySelector(".remove");
     const main = document.querySelector("main");
+    const form = document.querySelector(".form-container");
+    const messageEl = form?.querySelector(".form-message");
 
-    function createBox() {
+    const defaultExpenseTemplate = {
+      date: "04/14/1997",
+      price: 100,
+      description: "Shoes from Target",
+      category: "Clothes",
+    };
+
+    function formatCurrency(amount) {
+      const numericValue = Number(amount);
+      if (Number.isFinite(numericValue)) {
+        return `$${numericValue.toFixed(2)}`;
+      }
+      return `$${amount}`;
+    }
+
+    function formatCategory(category) {
+      if (!category) return "";
+      return category.charAt(0).toUpperCase() + category.slice(1);
+    }
+
+    function formatDate(dateString) {
+      const parts = dateString.split("-");
+      if (parts.length !== 3) return dateString;
+      const [year, month, day] = parts;
+      return `${month}/${day}/${year}`;
+    }
+
+    function generateExpenseId() {
+      return `EXP-${Date.now().toString(36)}-${Math.random()
+        .toString(36)
+        .slice(2, 6)}`.toUpperCase();
+    }
+
+    function createExpenseElement({ date, price, description, category, id }) {
       const div = document.createElement("div");
       div.className = "expense_container";
-      const p0 = document.createElement("p");
-      p0.textContent = "04/14/1997";
-      const p1 = document.createElement("p");
-      p1.textContent = "$100";
-      const p2 = document.createElement("p");
-      p2.textContent = "Description: Shoes from Target";
-      const p3 = document.createElement("p");
-      p3.textContent = "Category: Clothes";
-      const p4 = document.createElement("p");
-      p4.textContent = "ID: 123456789";
-      div.appendChild(p0);
-      div.appendChild(p1);
-      div.appendChild(p2);
-      div.appendChild(p3);
-      div.appendChild(p4);
+
+      const dateEl = document.createElement("p");
+      dateEl.textContent = date;
+
+      const priceEl = document.createElement("p");
+      priceEl.textContent = formatCurrency(price);
+
+      const descriptionEl = document.createElement("p");
+      descriptionEl.textContent = `Description: ${description}`;
+
+      const categoryEl = document.createElement("p");
+      categoryEl.textContent = `Category: ${formatCategory(category)}`;
+
+      const idEl = document.createElement("p");
+      idEl.textContent = `ID: ${id}`;
+
+      div.append(dateEl, priceEl, descriptionEl, categoryEl, idEl);
       return div;
     }
 
-    addBtn.addEventListener("click", () => {
-      const containers = main.querySelectorAll(".expense_container");
-      const newContainer = createBox();
-      if (containers.length) {
-        containers[containers.length - 1].after(newContainer);
-      } else {
-        // No containers found — insert before the buttons if they exist inside the main,
-        // otherwise append to the main as a safe fallback.
-        const btns = main.querySelector(".btns_div");
-        if (btns) main.insertBefore(newContainer, btns);
-        else main.appendChild(newContainer);
-      }
-    });
+    function sanitizeExpense(expense) {
+      if (!expense) return null;
 
-    removeBtn.addEventListener("click", () => {
+      const trimmedDate = String(expense.date ?? "").trim();
+      const trimmedDescription = String(expense.description ?? "").trim();
+      const trimmedCategory = String(expense.category ?? "").trim();
+      const trimmedId = String(expense.id ?? "").trim();
+
+      const numericPrice =
+        typeof expense.price === "number"
+          ? expense.price
+          : Number(String(expense.price ?? "").trim());
+
+      if (
+        !trimmedDate ||
+        !trimmedDescription ||
+        !trimmedCategory ||
+        !trimmedId ||
+        !Number.isFinite(numericPrice)
+      ) {
+        return null;
+      }
+
+      return {
+        date: trimmedDate,
+        price: numericPrice,
+        description: trimmedDescription,
+        category: trimmedCategory,
+        id: trimmedId,
+      };
+    }
+
+    function removeEmptyExpenseContainers() {
+      if (!main) return;
       const containers = main.querySelectorAll(".expense_container");
-      // Keep at least one box — do nothing if only one left
-      if (containers.length < 1) return;
-      const last = containers[containers.length - 1];
-      last.remove();
-    });
+      containers.forEach((container) => {
+        if (container.textContent.trim() === "") {
+          container.remove();
+        }
+      });
+    }
+
+    function insertExpenseElement(element) {
+      if (!main || !element) return;
+      const containers = main.querySelectorAll(".expense_container");
+
+      if (containers.length) {
+        containers[containers.length - 1].after(element);
+      } else {
+        const btns = main.querySelector(".btns_div");
+        if (btns) main.insertBefore(element, btns);
+        else main.appendChild(element);
+      }
+    }
+
+    function appendExpense(expense) {
+      const sanitized = sanitizeExpense(expense);
+      if (!sanitized) return null;
+
+      const newElement = createExpenseElement(sanitized);
+      insertExpenseElement(newElement);
+      payments.push(sanitized);
+      removeEmptyExpenseContainers();
+      return sanitized;
+    }
+
+    function setFormMessage(message, isError = true) {
+      if (!messageEl) return;
+      messageEl.textContent = message;
+      messageEl.classList.toggle("success", !isError && Boolean(message));
+    }
+
+    if (addBtn) {
+      addBtn.addEventListener("click", () => {
+        appendExpense({
+          ...defaultExpenseTemplate,
+          id: generateExpenseId(),
+        });
+      });
+    }
+
+    if (removeBtn) {
+      removeBtn.addEventListener("click", () => {
+        if (!main) return;
+        const containers = main.querySelectorAll(".expense_container");
+        if (containers.length < 1) return;
+        const last = containers[containers.length - 1];
+        last.remove();
+      });
+    }
+
+    if (form) {
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+
+        const dateInput = form.querySelector("#date");
+        const costInput = form.querySelector("#cost");
+        const descriptionInput = form.querySelector("#description");
+        const categoryInput = form.querySelector("#category");
+
+        const dateValue = dateInput?.value.trim() ?? "";
+        const costValue = costInput?.value.trim() ?? "";
+        const descriptionValue = descriptionInput?.value.trim() ?? "";
+        const categoryValue = categoryInput?.value.trim() ?? "";
+
+        if (!dateValue || !costValue || !descriptionValue || !categoryValue) {
+          setFormMessage("Please complete all fields before submitting.");
+          return;
+        }
+
+        const parsedPrice = Number(costValue);
+        if (!Number.isFinite(parsedPrice)) {
+          setFormMessage("Purchase amount must be a valid number.");
+          return;
+        }
+
+        const appended = appendExpense({
+          date: formatDate(dateValue),
+          price: parsedPrice,
+          description: descriptionValue,
+          category: categoryValue,
+          id: generateExpenseId(),
+        });
+
+        if (!appended) {
+          setFormMessage(
+            "Unable to create the expense entry. Please try again."
+          );
+          return;
+        }
+
+        setFormMessage("");
+        form.reset();
+        closeForm();
+      });
+    }
   });
 }
 
@@ -69,16 +221,20 @@ function toggleOverlay(isVisible) {
 }
 
 function openForm() {
-  document.getElementById("myForm").style.display = "block";
-  const form = document.getElementById("myForm");
-  if (!form) return;
-  form.style.display = "block";
+  const popup = document.getElementById("myForm");
+  if (!popup) return;
+  popup.style.display = "block";
+  const message = popup.querySelector(".form-message");
+  if (message) {
+    message.textContent = "";
+    message.classList.remove("success");
+  }
   toggleOverlay(true);
 }
+
 function closeForm() {
-  document.getElementById("myForm").style.display = "none";
-  const form = document.getElementById("myForm");
-  if (!form) return;
-  form.style.display = "none";
+  const popup = document.getElementById("myForm");
+  if (!popup) return;
+  popup.style.display = "none";
   toggleOverlay(false);
 }
